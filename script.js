@@ -45,6 +45,10 @@ function getIds(from, data) {
         element.value = i;
         VIDEOSELECT.appendChild(element);
     }
+
+    VIDEOSELECT.options.selectedIndex = 0;
+
+    changeVideo(0)
 }
 
 
@@ -58,7 +62,6 @@ function removeOldVideos() {
 
 
 function NextSong() {
-    console.log("nextsong");
     SongIndex++;
     changeVideo(SongIndex);
 }
@@ -73,13 +76,7 @@ function PrevSong() {
 
 
 
-
-
-
-
-
-
-
+//#region YT API IFRAME
 
 var tag = document.createElement('script');
 
@@ -94,7 +91,7 @@ function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
         height: '360',
         width: '640',
-        videoId: 'M7lc1UVf-VE',
+        videoId: 'XmVIRg0Xpxk',
         events: {
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange,
@@ -102,6 +99,9 @@ function onYouTubeIframeAPIReady() {
         }
     });
 }
+
+
+//#endregion
 
 // 4. The API will call this function when the video player is ready.
 function onPlayerReady(event) {
@@ -120,21 +120,20 @@ function onPlayerStateChange(event) {
     //}
 
     if (event.data == YT.PlayerState.ENDED) {
-        SongIndex++;
-        changeVideo(SongIndex);
-        VIDEOSELECT.children[SongIndex].focus();
+        NextSong();
     }
 }
 
 
-//var error_video = false;
-function onError() {
-
-    console.log(event.data)
-
-    if (error_video == false) {
-        setTimeout(NextSong(SongIndex), 6000);
-        error_video = true;
+function onError(event) {
+    switch (event.data) {
+        case 100:
+        case 101:
+        case 150:
+            setTimeout(NextSong, 1000);
+            break;
+        default:
+            console.log("Error en la cancion: " + SongIds[SongIndex])
     }
 }
 
@@ -148,12 +147,6 @@ function stopVideo() {
 }
 
 function changeVideo(index) {
-
-    console.log("Change video");
-
-    error_video = false;
-    console.log(" error_video = ", error_video);
-
     if (SongIndex != index) {
         SongIndex = index;
         player.loadVideoById(SongIds[SongIndex], 0, 'small');
@@ -161,4 +154,21 @@ function changeVideo(index) {
     else {
         player.loadVideoById(SongIds[SongIndex], 0, 'small');
     }
+
+    VIDEOSELECT.children[SongIndex].selected = true;
+    saveIndex(SongIndex);
 }
+
+
+
+
+
+
+
+
+
+function saveIndex(index) {
+    localStorage.setItem("SongIndex", index)
+}
+
+
