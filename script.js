@@ -46,9 +46,18 @@ function getIds(from, data) {
         VIDEOSELECT.appendChild(element);
     }
 
-    VIDEOSELECT.options.selectedIndex = 0;
+    if (document.getElementById("CBResumeSession").checked == true && localStorage.getItem("SongIndex") > 0){
 
-    changeVideo(0)
+        VIDEOSELECT.options.selectedIndex = localStorage.getItem("SongIndex");
+        changeVideo(VIDEOSELECT.options.selectedIndex);
+    }
+    else{
+        VIDEOSELECT.options.selectedIndex = 0;
+        changeVideo(0)
+    }
+
+
+
 }
 
 
