@@ -1,10 +1,12 @@
 
 const VIDEOSELECT = document.getElementById("videoSelect");
+//const MUSICA_RARA_ID = 
+
 
 let SongIndex = 0;
 let SongIds = [];
 var FrResult = "";
-var array;
+var inputFileArray;
 
 document.getElementById('InputFile')
     .addEventListener('change', function () {
@@ -18,30 +20,106 @@ document.getElementById('InputFile')
         }
 
         fr.readAsText(this.files[0]);
-    })
+})
 
+function LoadSession(){
+    
+    if (document.getElementById("CBResumeSession").checked == true && localStorage.getItem("SongIndex").length > 0 && localStorage.getItem("SongIdTitle").length > 0){
+
+        inputFileArray = localStorage.getItem("SongIdTitle");
+        getIds("PreviousSession", inputFileArray);
+        VIDEOSELECT.options.selectedIndex = localStorage.getItem("SongIndex");
+        changeVideo(VIDEOSELECT.options.selectedIndex);
+    }
+}
+
+function Shuffle(){
+
+    if (inputFileArray.length != 0){
+        for (let i = inputFileArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const temp = inputFileArray[i];
+            inputFileArray[i] = inputFileArray[j];
+            inputFileArray[j] = temp;
+        }
+    }
+
+    for (var i = VIDEOSELECT.children.length; i > 0; i--) {
+        VIDEOSELECT.removeChild(VIDEOSELECT.lastChild);
+    }
+    
+    for (var i = 0; i < inputFileArray.length; i++) {
+        var element = document.createElement("option");
+        element.innerText = String(i + 1).padStart(4, '0') + inputFileArray[i].substring(11, 99);
+        element.value = i;
+        VIDEOSELECT.appendChild(element);
+    }
+    
+    for (var i = 0; i < inputFileArray.length; i++) {
+        SongIds[i] = inputFileArray[i].substring(0, 11);
+    }
+
+    changeVideo(0)
+
+    
+    var SongIdTitle = "";
+    for (var i = 0; i < inputFileArray.length; i++) {
+        SongIdTitle += inputFileArray[i] + "\\\\-//";
+    }
+    localStorage.setItem("SongIdTitle", SongIdTitle)
+}
 
 function getIds(from, data) {
+
 
     //document.getElementById('Text')
     //    .textContent = FrResult;
     if (from == "InputFile") {
 
+        
 
-        array = data.split("\r\n");
+        inputFileArray = data.split("\r\n");
 
-        for (var i = 0; i < array.length; i++) {
-            SongIds[i] = array[i].substring(0, 11);
+        for (var i = 0; i < inputFileArray.length; i++) {
+            SongIds[i] = inputFileArray[i].substring(0, 11);
         }
     }
-    else if (from = "YTList") {
+    else if (from == "PreviousSession") {
+
+        
+
+        inputFileArray = data.split("\\\\-//");
+
+        for (var i = 0; i < inputFileArray.length; i++) {
+            SongIds[i] = inputFileArray[i].substring(0, 11);
+        }
+    }
+    else if (from == "YTList") {
+
+    }
+    else if( document.getElementById("InputFile").files.length == 0 ){
+        console.log("no files selected");
+
+        var fr = new FileReader();
+        
+        fr.readAsText("Musica_rara_ID.txt");
+        
+        data = fr.result;
+
+        console.log(data);
+
+        inputFileArray = data.split("\r\n");
+
+        for (var i = 0; i < inputFileArray.length; i++) {
+            SongIds[i] = inputFileArray[i].substring(0, 11);
+        }
 
     }
 
 
-    for (var i = 0; i < array.length; i++) {
+    for (var i = 0; i < inputFileArray.length; i++) {
         var element = document.createElement("option");
-        element.innerText = String(i + 1).padStart(4, '0') + array[i].substring(11, 99);
+        element.innerText = String(i + 1).padStart(4, '0') + inputFileArray[i].substring(11, 99);
         element.value = i;
         VIDEOSELECT.appendChild(element);
     }
@@ -56,8 +134,12 @@ function getIds(from, data) {
         changeVideo(0)
     }
 
+    var SongIdTitle = "";
+    for (var i = 0; i < inputFileArray.length; i++) {
+        SongIdTitle += inputFileArray[i] + "\\\\-//";
+    }
 
-
+    localStorage.setItem("SongIdTitle", SongIdTitle)
 }
 
 
@@ -144,10 +226,6 @@ function onError(event) {
         default:
             console.log("Error en la cancion: " + SongIds[SongIndex])
     }
-}
-
-function test() {
-    console.log(player.getPlayerState())
 }
 
 
